@@ -1,5 +1,5 @@
-// This file interacts with AnkiConnect
 import http from "http";
+import log from "./logger";
 
 export interface Note {
   modelName: "Basic";
@@ -13,6 +13,7 @@ interface AnkiCreateNoteResponse {
 }
 
 export async function createNote(note: Note, deck: string): Promise<number> {
+  log.info(`Anki Connect: Creating note ${note.front} in deck ${deck}`);
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
       action: "addNote",
@@ -55,20 +56,20 @@ export async function createNote(note: Note, deck: string): Promise<number> {
         try {
           const response: AnkiCreateNoteResponse = JSON.parse(responseData);
           if (response.error) {
-            console.error("Error creating note:", response.error);
+            log.error(`Anki Connect: Error creating note: ${response.error}`);
             reject(response.error);
           } else {
             resolve(response.result);
           }
         } catch (error) {
-          console.error("Error parsing response:", error);
+          log.error(`Anki Connect: Error parsing response: ${error}`);
           reject(error);
         }
       });
     });
 
     req.on("error", (error) => {
-      console.error("Error creating note:", error);
+      log.error(`Anki Connect: Error creating note: ${error}`);
       reject(error);
     });
 
