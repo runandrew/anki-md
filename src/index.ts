@@ -11,19 +11,18 @@ async function main () {
     const { content, deck, name } = await source.parseMd(OBSIDIAN_PATH);
     const htmlContent = await marked(content);
 
-    const note: anki.Note = {
-        modelName: "Basic",
-        front: name,
-        back: htmlContent
+    const fields: anki.BasicNoteFields = {
+        Front: name,
+        Back: htmlContent
     }
 
-    const existingNote = await anki.findNoteByFront(note.front, deck);
+    const existingNote = await anki.findNoteByFront(fields.Front, deck);
     if (existingNote) {
-        await anki.updateNote({ id: existingNote.id, ...note}, deck);
-        log.info(`Updated existing note: ${note.front}`);
+        await anki.updateNote(existingNote.id, fields, deck);
+        log.info(`Updated existing note: ${fields.Front}`);
     } else {
-        await anki.createNote(note, deck);
-        log.info(`Created new note: ${note.front}`);
+        await anki.createNote("Basic", fields, deck);
+        log.info(`Created new note: ${fields.Front}`);
     }
 }
 

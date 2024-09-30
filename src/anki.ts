@@ -1,10 +1,16 @@
 import log from "./logger";
 
-export interface Note {
-  id?: number;
+export type Note = BasicNote;
+
+export interface BasicNote {
+  id: number;
   modelName: "Basic";
-  front: string;
-  back: string;
+  fields: BasicNoteFields;
+}
+
+export interface BasicNoteFields {
+  Front: string;
+  Back: string;
 }
 
 // todo: don't use any as the return type
@@ -28,16 +34,13 @@ async function ankiConnect(action: string, params: any): Promise<any> {
   return data.result;
 }
 
-export async function createNote(note: Note, deck: string): Promise<number> {
-  log.info(`Anki Connect: Creating note ${note.front} in deck ${deck}`);
+export async function createNote(modelName: string, fields: BasicNoteFields, deck: string): Promise<number> {
+  log.info(`Anki Connect: Creating note ${fields.Front} in deck ${deck}`);
   return await ankiConnect("addNote", {
     note: {
       deckName: deck,
-      modelName: note.modelName,
-      fields: {
-        Front: note.front,
-        Back: note.back,
-      },
+      modelName: modelName,
+      fields,
       options: {
         allowDuplicate: false,
         duplicateScope: "deck",
@@ -46,30 +49,26 @@ export async function createNote(note: Note, deck: string): Promise<number> {
   });
 }
 
-export async function updateNote(note: Note, deck: string): Promise<void> {
-  log.info(`Anki Connect: Updating note ${note.id} in deck ${deck}`);
+export async function updateNote(id: number, fields: BasicNoteFields, deck: string): Promise<void> {
+  log.info(`Anki Connect: Updating note ${id} in deck ${deck}`);
   await ankiConnect("updateNote", {
     note: {
-      id: note.id,
-      fields: {
-        Front: note.front,
-        Back: note.back,
-      },
+      id: id,
+      fields,
       deckName: deck,
     },
   });
 }
 
-export async function findNote(noteId: number): Promise<Note | null> {
-  log.info(`Anki Connect: Finding note with ID ${noteId}`);
-  const result = await ankiConnect("notesInfo", { notes: [noteId] });
+export async function findNote(id: number): Promise<Note | null> {
+  log.info(`Anki Connect: Finding note with ID ${id}`);
+  const result = await ankiConnect("notesInfo", { notes: [id] });
   if (result && result.length > 0) {
     const noteInfo = result[0];
     return {
       id: noteInfo.noteId,
       modelName: noteInfo.modelName,
-      front: noteInfo.fields.Front.value,
-      back: noteInfo.fields.Back.value,
+      fields: noteInfo.fields,
     };
   }
   return null;
