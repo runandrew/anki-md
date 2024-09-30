@@ -1,29 +1,29 @@
-import fs from 'fs';
-import matter from 'gray-matter';
+import fs from "fs";
+import matter from "gray-matter";
 
 interface Md {
-    name: string;
-    deck: string;
-    content: string;
+  name: string;
+  deck: string;
+  content: string;
 }
 
 export async function parseMd(path: string): Promise<Md> {
-    // Read the file contents
-    const fileContents = await fs.promises.readFile(path, 'utf-8');
-    
-    // Parse the file using gray-matter
-    const { data, content } = matter(fileContents);
+  // Read the file contents
+  const fileContents = await fs.promises.readFile(path, "utf-8");
 
-    // Extract the filename without extension
-    const name = path.split('/').pop()?.replace(/\.md$/, '') || '';
+  // Parse the file using gray-matter
+  const { data, content } = matter(fileContents);
 
-    if (typeof data["anki-deck"] !== "string") throw Error("anki-deck file property is not defined");
+  // Extract the filename without extension
+  const name = path.split("/").pop()?.replace(/\.md$/, "") || "";
 
-    const deck = data["anki-deck"];
-    
-    return {
-        name,
-        deck,
-        content,
-    };
+  if (typeof data["anki-deck"] !== "string") throw Error("anki-deck file property is not defined");
+
+  const deck = data["anki-deck"];
+
+  return {
+    name,
+    deck,
+    content,
+  };
 }
