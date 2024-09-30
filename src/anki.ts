@@ -37,7 +37,7 @@ export async function createNote(
   fields: BasicNoteFields,
   deck: string
 ): Promise<number> {
-  log.info(`Anki Connect: Creating note ${fields.Front} in deck ${deck}`);
+  log.info(`Anki Connect: Creating note "${fields.Front}" in deck "${deck}"`);
   return await ankiConnect("addNote", {
     note: {
       deckName: deck,
@@ -52,7 +52,7 @@ export async function createNote(
 }
 
 export async function updateNote(id: number, fields: BasicNoteFields, deck: string): Promise<void> {
-  log.info(`Anki Connect: Updating note ${id} in deck ${deck}`);
+  log.info(`Anki Connect: Updating note "${fields.Front}" in deck "${deck}"`);
   await ankiConnect("updateNote", {
     note: {
       id: id,
@@ -63,7 +63,7 @@ export async function updateNote(id: number, fields: BasicNoteFields, deck: stri
 }
 
 export async function findNote(id: number): Promise<BasicNote | null> {
-  log.info(`Anki Connect: Finding note with ID ${id}`);
+  log.info(`Anki Connect: Finding note with ID "${id}"`);
   const result = await ankiConnect("notesInfo", { notes: [id] });
   if (result && result.length > 0) {
     const noteInfo = result[0];
