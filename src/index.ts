@@ -3,10 +3,6 @@ import * as source from "./source";
 import { marked } from "marked";
 import log from "./logger";
 
-async function sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 async function main () {
     const md = await source.parseMd("./input/Hello World ABC.md");
     const htmlContent = await marked(md.content);
