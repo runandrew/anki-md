@@ -8,7 +8,6 @@ const OBSIDIAN_PATH =
   "/Users/andrewgarcia/Library/Mobile Documents/iCloud~md~obsidian/Documents/Andrew/Notes/What makes a pragmatic programmer?.md";
 
 async function main() {
-  // const md = await source.parseMd("./input/Hello World ABC.md");
   const { content, deck, name } = await source.parseMd(OBSIDIAN_PATH);
   const htmlContent = await marked(content);
 
@@ -17,7 +16,7 @@ async function main() {
     Back: htmlContent,
   };
 
-  const existingNote = await anki.findNoteByQuery({ front: fields.Front, deck });
+  const existingNote = await anki.findNoteByQuery({ front: fields.Front, deck, note: "Basic" });
   if (existingNote) {
     if (isEqual(existingNote.fields, fields)) {
       log.info(`Note "${fields.Front}" has not changed`);
