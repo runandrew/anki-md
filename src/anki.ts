@@ -4,8 +4,8 @@ import log from "./logger";
 export interface Note {
   id?: number;
   modelName: "Basic";
-  front: String;
-  back: String;
+  front: string;
+  back: string;
 }
 
 interface AnkiCreateNoteResponse {
@@ -206,3 +206,64 @@ export async function findNote(noteId: number): Promise<Note | null> {
     req.end();
   });
 }
+
+export async function findNoteByFront(front: string): Promise<Note | null> {
+    log.info(`Anki Connect: Finding note with front: ${front}`);
+    return new Promise((resolve, reject) => {
+      const data = JSON.stringify({
+        action: "findNotes",
+        version: 6,
+        params: {
+          query: `front:"${front}"`
+        }
+      });
+  
+      const options = {
+        hostname: "localhost",
+        port: 8765,
+        path: "/",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": data.length,
+        },
+      };
+  
+      const req = http.request(options, (res) => {
+        let responseData = "";
+  
+        res.on("data", (chunk) => {
+          responseData += chunk;
+        });
+  
+        res.on("end", () => {
+          try {
+            const response = JSON.parse(responseData);
+            if (response.error) {
+              log.error(`Anki Connect: Error finding note: ${response.error}`);
+              reject(new Error(response.error));
+            } else if (response.result && response.result.length > 0) {
+              // Get the first matching note ID
+              const noteId = response.result[0];
+              // Fetch the note details
+              findNote(noteId).then(resolve).catch(reject);
+            } else {
+              resolve(null); // Note not found
+            }
+          } catch (error) {
+            log.error(`Anki Connect: Error parsing response: ${error}`);
+            reject(error);
+          }
+        });
+      });
+  
+      req.on("error", (error) => {
+        log.error(`Anki Connect: Error finding note: ${error}`);
+        reject(error);
+      });
+  
+      req.write(data);
+      req.end();
+    });
+  }
+  
