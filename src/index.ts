@@ -25,7 +25,7 @@ async function main() {
     await anki.updateNote(existingNote.id, fields, deck);
     log.info(`Updated existing note: "${fields.Front}"`);
   } else {
-    await anki.createNote("Basic", fields, deck);
+    await anki.createNote(fields, deck);
     log.info(`Created new note: "${fields.Front}"`);
   }
 }

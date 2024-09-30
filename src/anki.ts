@@ -32,16 +32,12 @@ async function ankiConnect(action: string, params: any): Promise<any> {
   return data.result;
 }
 
-export async function createNote(
-  modelName: string,
-  fields: BasicNoteFields,
-  deck: string
-): Promise<number> {
+export async function createNote(fields: BasicNoteFields, deck: string): Promise<number> {
   log.info(`Anki Connect: Creating note "${fields.Front}" in deck "${deck}"`);
   return await ankiConnect("addNote", {
     note: {
       deckName: deck,
-      modelName: modelName,
+      modelName: "Basic",
       fields,
       options: {
         allowDuplicate: false,
