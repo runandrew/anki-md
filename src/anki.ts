@@ -58,21 +58,29 @@ export async function updateNote(id: number, fields: BasicNoteFields, deck: stri
   });
 }
 
-export async function findNote(id: number): Promise<Note | null> {
+export async function findNote(id: number): Promise<BasicNote | null> {
   log.info(`Anki Connect: Finding note with ID ${id}`);
   const result = await ankiConnect("notesInfo", { notes: [id] });
   if (result && result.length > 0) {
     const noteInfo = result[0];
+    // The fields object comes back as a map of { value: string; order: number }
+    // We need to convert it back to a simple key-value pair, removing the order field
+    const noteInfoFields: Record<string, { value: string; order: number }> = noteInfo.fields;
+    const fields = Object.keys(noteInfoFields).reduce((acc: Record<string, string>, key: string) => {
+      acc[key] = noteInfoFields[key].value;
+      return acc;
+    }, {} as Record<string, string>);
+
     return {
       id: noteInfo.noteId,
       modelName: noteInfo.modelName,
-      fields: noteInfo.fields,
+      fields: fields as unknown as BasicNoteFields,
     };
   }
   return null;
 }
 
-export async function findNoteByQuery(query: Record<string, string>): Promise<Note | null> {
+export async function findNoteByQuery(query: Record<string, string>): Promise<BasicNote | null> {
   const queryString = Object.entries(query).map(([key, value]) => `${key}:"${value}"`).join(' ');
   log.info(`Anki Connect: Finding note with query: ${queryString}`);
   const noteIds = await ankiConnect("findNotes", { query: queryString });

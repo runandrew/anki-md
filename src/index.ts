@@ -2,6 +2,7 @@ import * as anki from "./anki";
 import * as source from "./source";
 import { marked } from "marked";
 import log from "./logger";
+import isEqual from "lodash/isEqual";
 
 const OBSIDIAN_PATH = "/Users/andrewgarcia/Library/Mobile Documents/iCloud~md~obsidian/Documents/Andrew/Notes/What makes a pragmatic programmer?.md";
 
@@ -18,11 +19,15 @@ async function main () {
 
     const existingNote = await anki.findNoteByQuery({ front: fields.Front, deck });
     if (existingNote) {
+        if (isEqual(existingNote.fields, fields)) {
+            log.info(`Note "${fields.Front}" has not changed`);
+            return;
+        }
         await anki.updateNote(existingNote.id, fields, deck);
-        log.info(`Updated existing note: ${fields.Front}`);
+        log.info(`Updated existing note: "${fields.Front}"`);
     } else {
         await anki.createNote("Basic", fields, deck);
-        log.info(`Created new note: ${fields.Front}`);
+        log.info(`Created new note: "${fields.Front}"`);
     }
 }
 
