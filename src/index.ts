@@ -16,7 +16,7 @@ async function main () {
         Back: htmlContent
     }
 
-    const existingNote = await anki.findNoteByFront(fields.Front, deck);
+    const existingNote = await anki.findNoteByQuery({ front: fields.Front, deck });
     if (existingNote) {
         await anki.updateNote(existingNote.id, fields, deck);
         log.info(`Updated existing note: ${fields.Front}`);

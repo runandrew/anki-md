@@ -1,7 +1,5 @@
 import log from "./logger";
 
-export type Note = BasicNote;
-
 export interface BasicNote {
   id: number;
   modelName: "Basic";
@@ -74,10 +72,10 @@ export async function findNote(id: number): Promise<Note | null> {
   return null;
 }
 
-export async function findNoteByFront(front: string, deck: string): Promise<Note | null> {
-  log.info(`Anki Connect: Finding note with front: ${front} in deck: ${deck}`);
-  const query = `deck:"${deck}" front:"${front}"`;
-  const noteIds = await ankiConnect("findNotes", { query });
+export async function findNoteByQuery(query: Record<string, string>): Promise<Note | null> {
+  const queryString = Object.entries(query).map(([key, value]) => `${key}:"${value}"`).join(' ');
+  log.info(`Anki Connect: Finding note with query: ${queryString}`);
+  const noteIds = await ankiConnect("findNotes", { query: queryString });
   if (noteIds && noteIds.length > 0) {
     return await findNote(noteIds[0]);
   }
