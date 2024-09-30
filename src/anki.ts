@@ -75,9 +75,10 @@ export async function findNote(noteId: number): Promise<Note | null> {
   return null;
 }
 
-export async function findNoteByFront(front: string): Promise<Note | null> {
-  log.info(`Anki Connect: Finding note with front: ${front}`);
-  const noteIds = await ankiConnect("findNotes", { query: `front:"${front}"` });
+export async function findNoteByFront(front: string, deck: string): Promise<Note | null> {
+  log.info(`Anki Connect: Finding note with front: ${front} in deck: ${deck}`);
+  const query = `deck:"${deck}" front:"${front}"`;
+  const noteIds = await ankiConnect("findNotes", { query });
   if (noteIds && noteIds.length > 0) {
     return await findNote(noteIds[0]);
   }
