@@ -5,7 +5,7 @@ import log from "./logger";
 import isEqual from "lodash/isEqual";
 
 const OBSIDIAN_PATH =
-  "/Users/andrewgarcia/Library/Mobile Documents/iCloud~md~obsidian/Documents/Andrew/Notes/What makes a pragmatic programmer?.md";
+  "/Users/andrewgarcia/Library/Mobile Documents/iCloud~md~obsidian/Documents/Andrew/Notes";
 
 async function upsertNote(fields: anki.BasicNoteFields, deck: string): Promise<void> {
   log.info(`Upserting note: "${fields.Front}"`);
@@ -24,15 +24,18 @@ async function upsertNote(fields: anki.BasicNoteFields, deck: string): Promise<v
 }
 
 async function main() {
-  const { content, deck, name } = await source.parseMd(OBSIDIAN_PATH);
-  const htmlContent = await marked(content);
+  const mds = await source.parseMdDir(OBSIDIAN_PATH);
 
-  const fields: anki.BasicNoteFields = {
-    Front: name,
-    Back: htmlContent,
-  };
+  for (const md of mds) {
+    const htmlContent = await marked(md.content);
 
-  await upsertNote(fields, deck);
+    const fields: anki.BasicNoteFields = {
+      Front: md.name,
+      Back: htmlContent,
+    };
+
+    await upsertNote(fields, md.deck);
+  }
 }
 
 main().catch((e) => log.error(e));
