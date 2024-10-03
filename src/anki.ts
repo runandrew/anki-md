@@ -1,4 +1,5 @@
 import log from "./logger";
+import isEqual from "lodash/isEqual";
 
 export interface BasicNote {
   id: number;
@@ -56,6 +57,22 @@ export async function updateNote(id: number, fields: BasicNoteFields, deck: stri
       deckName: deck,
     },
   });
+}
+
+export async function upsertNote(fields: BasicNoteFields, deck: string): Promise<void> {
+  log.info(`Upserting note: "${fields.Front}"`);
+  const existingNote = await findNoteByQuery({ front: fields.Front, deck, note: "Basic" });
+  if (existingNote) {
+    if (isEqual(existingNote.fields, fields)) {
+      log.info(`Note "${fields.Front}" has not changed`);
+      return;
+    }
+    await updateNote(existingNote.id, fields, deck);
+    log.info(`Updated existing note: "${fields.Front}"`);
+  } else {
+    await createNote(fields, deck);
+    log.info(`Created new note: "${fields.Front}"`);
+  }
 }
 
 export async function findNote(id: number): Promise<BasicNote | null> {
